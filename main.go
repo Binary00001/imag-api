@@ -41,6 +41,9 @@ func main() {
 	r.HandleFunc("/api/dept/burndown/{dept}", getDeptBurndown)
 	r.HandleFunc("/api/burndown", getBurndown)
 
+	//PCM_ROUTES
+	r.HandleFunc("/api/pcm", getPCMList)
+
 	// SETUP DATABASE
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s",
 		server, user, password, port, database)
