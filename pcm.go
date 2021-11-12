@@ -9,9 +9,9 @@ import (
 )
 
 type pcm struct {
-	PCM_ID				int			`json:"PCM_ID"`
+	// PCM_ID				int			`json:"PCM_ID"`
 	PCM_Location 	string  `json:"PCM_Location"`
-	PCM_Num      	string  `json:"PCM_Num"`
+	PCM_Num      	*string  `json:"PCM_Num"`
 	PCM_Sheet    	*string `json:"PCM_Sheet"`
 	PCM_Rev      	*string  `json:"PCM_Rev"`
 	PCM_Comments 	*string  `json:"PCM_Comments"`
@@ -31,7 +31,7 @@ func getPCMList(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Could not establish a connection: ", err.Error())
 	}
 
-	tsql := fmt.Sprintf("SELECT * FROM PCM_LOC")
+	tsql := fmt.Sprintf("SELECT * FROM PcmTable")
 
 	rows, err := db.QueryContext(ctx, tsql)
 	if err != nil {
@@ -42,7 +42,7 @@ func getPCMList(w http.ResponseWriter, r *http.Request) {
 
 	for rows.Next() {
 		err := rows.Scan(
-			&temp.PCM_ID,
+			// &temp.PCM_ID,
 			&temp.PCM_Location, 
 			&temp.PCM_Num,
 			&temp.PCM_Sheet,
