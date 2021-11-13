@@ -6,18 +6,22 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"github.com/joho/godotenv"
 )
 
+godotenv.Load()
+
 var db *sql.DB
-var server = "IMASQL01"
-var port = 1433
-var user = "esisa"
-var password = "CNIAMI000"
-var database = "Esi2000Db"
+var server = os.Getenv("HOST")
+var port = os.Getenv("PORT")
+var user = os.Getenv("USER")
+var password = os.Getenv("PASSWORD")
+var database = os.Getenv("DATABASE")
 
 // THIS IS JUST FOR TESTING CONNECTION
 func home(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +34,7 @@ func main() {
 	r := mux.NewRouter().StrictSlash(true)
 	handler := cors.AllowAll().Handler(r)
 	srv := &http.Server{
-		Addr: "10.25.1.73:4004",
+		Addr: os.Getenv("ADDRESS"),
 		Handler: handler,
 	}
 
