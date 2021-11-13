@@ -10,15 +10,13 @@ import (
 
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gorilla/mux"
-	"github.com/rs/cors"
 	"github.com/joho/godotenv"
+	"github.com/rs/cors"
 )
 
-godotenv.Load()
-
 var db *sql.DB
-var server = os.Getenv("HOST")
-var port = os.Getenv("PORT")
+var server = "IMASQL01"
+var port = 1433
 var user = os.Getenv("USER")
 var password = os.Getenv("PASSWORD")
 var database = os.Getenv("DATABASE")
@@ -29,12 +27,22 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env", err.Error())
+	}
+
+	var server = os.Getenv("HOST")
+	var port = 1433
+	var user = os.Getenv("USER")
+	var password = os.Getenv("PASSWORD")
+	var database = os.Getenv("DATABASE")
+
 	r := mux.NewRouter().StrictSlash(true)
 	handler := cors.AllowAll().Handler(r)
 	srv := &http.Server{
-		Addr: os.Getenv("ADDRESS"),
+		Addr:    os.Getenv("ADDRESS"),
 		Handler: handler,
 	}
 
@@ -47,12 +55,11 @@ func main() {
 
 	//PCM_ROUTES
 	r.HandleFunc("/api/pcm", getPCMList)
+	r.HandleFunc("/api/pcm/loc/{pcmLoc}", getPcmByLoc)
 
 	// SETUP DATABASE
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s",
 		server, user, password, port, database)
-
-	var err error	
 
 	db, err = sql.Open("sqlserver", connString)
 	if err != nil {
@@ -65,6 +72,6 @@ func main() {
 		log.Fatal("Could not connect to database: ", err.Error())
 	}
 	fmt.Println("Connected")
-	
+
 	log.Fatal(srv.ListenAndServe())
 }
