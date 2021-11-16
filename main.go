@@ -15,11 +15,7 @@ import (
 )
 
 var db *sql.DB
-// var server = "IMASQL01"
-// var port = 1433
-// var user = os.Getenv("USER")
-// var password = os.Getenv("PASSWORD")
-// var database = os.Getenv("DATABASE")
+
 
 // THIS IS JUST FOR TESTING CONNECTION
 func home(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +54,8 @@ func main() {
 	r.HandleFunc("/api/pcm/loc/{pcmLoc}", getPcmByLoc)
 
 	//INVETORY 
-	r.HandleFunc("/api/inv/{partNum}", lotsByPartNumber)
+	r.HandleFunc("/api/inv/part/{partNum}", lotsByPartNumber)
+	r.HandleFunc("/api/inv/available", availableShip)
 
 	// SETUP DATABASE
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s",
