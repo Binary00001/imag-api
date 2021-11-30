@@ -1,3 +1,4 @@
 *.env
 imag-api.exe
 imag-api
+sqlQueries.sql

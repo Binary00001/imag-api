@@ -37,6 +37,7 @@ type department struct {
 	Run_Num				string	`json:"Run_Num"`
 	Run 					*string	`json:"Run"`
 	Work_Center 	*string	`json:"Work_Center"`
+	WC_Name				*string	`json:"WC_Name"`
 	Run_Status		string	`json:"Run_Status"`
 	Run_Qty				string	`json:"Run_Qty"`
 	Current_OP		*string	`json:"Current_OP"`
@@ -174,8 +175,8 @@ func getDept(w http.ResponseWriter, r *http.Request) {
 
 	// tsql := fmt.Sprintf("SELECT TOP 20 RTRIM(PART_NUMBER) AS PART_NUMBER, RTRIM(RUN) AS RUN, RTRIM(PO) AS PO, RTRIM(LTRIM(ITEM)) AS ITEM, DAYS_IN_QUEUE, RTRIM(CUSTOMER) AS CUSTOMER, PRIORITY, COMMENTS, CAST(CUST_REQ_DATE AS DATETIME) AS CUST_REQ_DATE, RUN_QTY, RTRIM(WORK_CENTER) AS WORK_CENTER, RTRIM(WC) AS WC, RTRIM(t2.WCNDESC) AS WC_NAME FROM QueueInfo INNER JOIN WcntTable AS t2 ON WC = t2.WCNNUM WHERE WC = '%s' ORDER BY CUST_REQ_DATE ASC", dept)
 
-tsql := fmt.Sprintf("select distinct TOP 20 RTRIM(runstable.Runref) As RUNREF, RTRIM(runstable.runrtnum) AS RUNRTNUM, runstable.runno, RTRIM(OPCENTER) AS OPCENTER, RUNSTATUS, RUNQTY, runopcur,RnopTable.OPQDATE,  RnopTable.OPSCHEDDATE,RunsTable.RUNPRIORITY, f.PrevOPNO, f.OPQDATE PREVQDATE, f.OPCOMPDATE PREVCOMPDATE, (SELECT AGPMCOMMENTS FROM AgcmTable WHERE AGPART = RUNRTNUM AND AGRUN=RunsTable.RUNNO) AS COMMENTS, DATEDIFF(day,f.OPCOMPDATE, RnopTable.OPQDATE) DtDiffQue, DATEDIFF(day, f.OPCOMPDATE, GETDATE()) DtDiffNow from runstable,RnopTable, (select a.runref, a.runno, b.OPNO PrevOPNO, OPQDATE, OPCOMPDATE, ROW_NUMBER() OVER (PARTITION BY opref, oprun ORDER BY opref DESC, oprun DESC, OPNO desc) as rn from runstable a,rnopTable b where a.runref = b.opref and a.RunNO = b.oprun And b.opno < a.runopcur) as f where RnopTable.OPSCHEDDATE between '2021-01-01' and CAST(GETDATE() AS DATE) and RunsTable.runref =  f.runref AND RunsTable.runno = f.runno and RnopTable.opref = RunsTable.runref AND RunsTable.runno = RnopTable.OPRUN and RunsTable.runopcur = RnopTable.Opno and RnopTable.OPSHOP LIKE '01' AND RnopTable.OPCENTER LIKE '%s' AND RnopTable.OPCOMPLETE = 0 and f.rn = 1 ORDER BY RunsTable.RUNPRIORITY, RnopTable.OPSCHEDDATE", dept)
-
+// tsql := fmt.Sprintf("select distinct TOP 20 RTRIM(runstable.Runref) As RUNREF, RTRIM(runstable.runrtnum) AS RUNRTNUM, runstable.runno, RTRIM(OPCENTER) AS OPCENTER, RUNSTATUS, RUNQTY, runopcur,RnopTable.OPQDATE,  RnopTable.OPSCHEDDATE,RunsTable.RUNPRIORITY, f.PrevOPNO, f.OPQDATE PREVQDATE, f.OPCOMPDATE PREVCOMPDATE, (SELECT AGPMCOMMENTS FROM AgcmTable WHERE AGPART = RUNRTNUM AND AGRUN=RunsTable.RUNNO) AS COMMENTS, DATEDIFF(day,f.OPCOMPDATE, RnopTable.OPQDATE) DtDiffQue, DATEDIFF(day, f.OPCOMPDATE, GETDATE()) DtDiffNow from runstable WITH (nolock),RnopTable WITH (nolock), (select a.runref, a.runno, b.OPNO PrevOPNO, OPQDATE, OPCOMPDATE, ROW_NUMBER() OVER (PARTITION BY opref, oprun ORDER BY opref DESC, oprun DESC, OPNO desc) as rn from runstable a,rnopTable b where a.runref = b.opref and a.RunNO = b.oprun And b.opno < a.runopcur) as f where RnopTable.OPSCHEDDATE between '2021-01-01' and CAST(GETDATE() AS DATE) and RunsTable.runref =  f.runref AND RunsTable.runno = f.runno and RnopTable.opref = RunsTable.runref AND RunsTable.runno = RnopTable.OPRUN and RunsTable.runopcur = RnopTable.Opno and RnopTable.OPSHOP = '01' AND RnopTable.OPCENTER = '%s' AND RnopTable.OPCOMPLETE = 0 and f.rn = 1 ORDER BY RunsTable.RUNPRIORITY, RnopTable.OPSCHEDDATE", dept)
+ tsql := fmt.Sprintf("SELECT TOP 20 RTRIM(RunsTable.RUNREF) As Run_Ref, RTRIM(RunsTable.RUNRTNUM) AS Part_Number, RunsTable.RUNNO AS Run, RTRIM(OPCENTER) AS WC_Ref, WcntTable.WCNDESC AS WC_Name, RunsTable.RUNSTATUS AS Run_Status, RunsTable.RUNQTY AS Qty, RunsTable.RUNOPCUR AS Current_Op, RnopTable.OPQDATE, RnopTable.OPSCHEDDATE, RunsTable.RUNPRIORITY AS Run_Priority, f.PrevOPNO, f.OPQDATE PREVQDATE, f.OPCOMPDATE Prev_Comp_Date, (SELECT AGPMCOMMENTS FROM AgcmTable WHERE AGPART = RUNRTNUM AND AGRUN=RunsTable.RUNNO) AS Comments, DATEDIFF(day,f.OPCOMPDATE, RnopTable.OPQDATE) DtDiffQue, DATEDIFF(day, f.OPCOMPDATE, GETDATE()) DtDiffNow from runstable,RnopTable INNER JOIN WcntTable ON WCNREF=OPCENTER, (select a.runref, a.runno, b.OPNO PrevOPNO, OPQDATE, OPCOMPDATE, ROW_NUMBER() OVER (PARTITION BY opref, oprun ORDER BY opref DESC, oprun DESC, OPNO desc) as rn from runstable a,rnopTable b where a.runref = b.opref and a.RunNO = b.oprun And b.opno < a.runopcur) as f where RnopTable.OPSCHEDDATE between '2021-01-01' and CAST(GETDATE() AS DATE) and RunsTable.runref =  f.runref AND RunsTable.runno = f.runno and RnopTable.opref = RunsTable.runref AND RunsTable.runno = RnopTable.OPRUN and RunsTable.runopcur = RnopTable.Opno and RnopTable.OPSHOP LIKE '01' AND RnopTable.OPCENTER = '%s' AND RnopTable.OPCOMPLETE = 0 and f.rn = 1 ORDER BY RunsTable.RUNPRIORITY, RnopTable.OPSCHEDDATE", dept)
 	rows, err := db.QueryContext(ctx, tsql)
 	if err != nil {
 		log.Fatal("Error executing query: ", err.Error())
@@ -189,6 +190,7 @@ tsql := fmt.Sprintf("select distinct TOP 20 RTRIM(runstable.Runref) As RUNREF, R
 			&temp.Run_Num,
 			&temp.Run,
 			&temp.Work_Center,
+			&temp.WC_Name,
 			&temp.Run_Status,
 			&temp.Run_Qty,
 			&temp.Current_OP,

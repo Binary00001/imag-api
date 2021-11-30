@@ -45,9 +45,10 @@ func main() {
 	// ROUTES
 	r.HandleFunc("/", home)
 	r.HandleFunc("/api/employee/stats", getEmployeeStats)
-	r.HandleFunc("/api/dept/{dept}", getDept)
+	r.HandleFunc("/api/dept/num/{dept}", getDept)
 	r.HandleFunc("/api/dept/burndown/{dept}", getDeptBurndown)
 	r.HandleFunc("/api/burndown", getBurndown)
+	r.HandleFunc("/api/testing/dept/num/{dept}", getQueue)
 
 	//PCM_ROUTES
 	r.HandleFunc("/api/pcm", getPCMList)
