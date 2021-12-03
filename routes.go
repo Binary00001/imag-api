@@ -65,6 +65,7 @@ type Burndown struct {
 	Ref         string `json:"Ref"`
 	Part_Number string `json:"Part_Number"`
 	Run         int    `json:"Run"`
+	Qty         int    `json:"Qty"`
 	Comments    string `json:"Comments"`
 	Customer    string `json:"Customer"`
 	Work_Center string `json:"Work_Center"`
@@ -245,7 +246,7 @@ func getBurndown(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tsql := fmt.Sprint(`
-	SELECT RUNREF, RUNRTNUM, RUNNO, AGPMCOMMENTS, 
+	SELECT RUNREF, RUNRTNUM, RUNNO, RUNQTY, AGPMCOMMENTS, 
 	CASE
 		WHEN RTRIM(SOCUST) = 'BOECOM' THEN ('BOE' + SUBSTRING(SOPO,0,4))
 		ELSE 
