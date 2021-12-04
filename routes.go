@@ -65,7 +65,7 @@ type Burndown struct {
 	Ref         string `json:"Ref"`
 	Part_Number string `json:"Part_Number"`
 	Run         int    `json:"Run"`
-	Qty         int    `json:"Qty"`
+	Qty         string `json:"Qty"`
 	Comments    string `json:"Comments"`
 	Customer    string `json:"Customer"`
 	Work_Center string `json:"Work_Center"`
@@ -292,6 +292,7 @@ func getBurndown(w http.ResponseWriter, r *http.Request) {
 			&temp.Ref,
 			&temp.Part_Number,
 			&temp.Run,
+			&temp.Qty,
 			&temp.Comments,
 			&temp.Customer,
 			&temp.Work_Center,

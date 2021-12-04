@@ -56,7 +56,7 @@ func getQueue(w http.ResponseWriter, r *http.Request) {
   		RnopTable.OPQDATE,
   		RnopTable.OPSCHEDDATE,
   		DATEDIFF(minute, TempTable.OPCOMPDATE, GETDATE()) QUEUETIMEMIN,
-  		isnull((select AgcmTable.AGPMCOMMENTS from AgcmTable where AgcmTable.AGPART = RunsTable.RUNRTNUM and AgcmTable.AGRUN = RunsTable.RUNNO), '') COMMENTS,
+  		(SELECT AGPMCOMMENTS FROM AgcmTable WHERE A)) COMMENTS,
   		WcntTable.WCNDESC,
   		WcntTable.WCNNUM
 		FROM RunsTable, RnopTable
@@ -72,7 +72,7 @@ func getQueue(w http.ResponseWriter, r *http.Request) {
 			and RunsTable.RUNREF = TempTable.RUNREF and RunsTable.RUNNO = TempTable.RUNNO
 			and RnopTable.OPREF = RunsTable.RUNREF and RnopTable.OPRUN = RunsTable.RUNNO and RnopTable.OPNO = RunsTable.RUNOPCUR
 			and RnopTable.OPSHOP = '01' and RnopTable.OPCOMPLETE = 0
-			and RnopTable.OPCENTER = '%s'
+			and RnopTable.OPCENTER  '%s'
 			and TempTable.RN = 1
 		order by RunsTable.RUNPRIORITY asc
 	`, dept)
