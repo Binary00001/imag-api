@@ -45,10 +45,13 @@ func main() {
 	// ROUTES
 	r.HandleFunc("/", home)
 	r.HandleFunc("/api/employee/stats", getEmployeeStats)
-	r.HandleFunc("/api/dept/num/{dept}", getDept)
+	r.HandleFunc("/api/dept/num/{dept}", getQueue)
 	r.HandleFunc("/api/dept/burndown/{dept}", getDeptBurndown)
 	r.HandleFunc("/api/burndown", getBurndown)
-	r.HandleFunc("/api/testing/dept/num/{dept}", getQueue)
+	// r.HandleFunc("/api/testing/dept/num/{dept}", getQueue)
+
+	//DEPT ROUTES
+	// r.HandleFunc("/api/dept/stats/dailygoal/{dept}", dailyGoal )
 
 	//PCM_ROUTES
 	r.HandleFunc("/api/pcm", getPCMList)
@@ -58,6 +61,9 @@ func main() {
 	r.HandleFunc("/api/inv/part/{partNum}", lotsByPartNumber)
 	r.HandleFunc("/api/inv/available", availableShip)
 
+	//TESTING
+	r.HandleFunc("/api/testing/part", getParts)
+	r.HandleFunc("/api/testing/dept/stats/{dept}", getDeptStats)
 	// SETUP DATABASE
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s",
 		server, user, password, port, database)
