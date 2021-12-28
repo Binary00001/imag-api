@@ -100,7 +100,7 @@ func completedParts(dept string) int {
 		 SELECT
     		CAST(ISNULL(SUM(OPACCEPT), 0) AS INT) as daily_parts  
     	FROM RnopTable 
-    	WHERE OPCENTER = '%s' AND OPCOMPDATE >= CAST(GETDATE() AS DATE)`, dept)
+    	WHERE OPCENTER like '%s' AND OPCOMPDATE >= CAST(GETDATE() AS DATE)`, dept)
 
 	rows, err := db.QueryContext(ctx, tsql)
 	if err != nil {

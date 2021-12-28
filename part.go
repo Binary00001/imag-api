@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -68,4 +69,67 @@ func getParts(w http.ResponseWriter, r *http.Request) {
 	// 	tempList = append(tempList, temp)
 	// }
 	json.NewEncoder(w).Encode(parts)
+}
+
+func getAllocations(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	var temp Allocations 
+	var tempList []Allocations
+
+	vals := r.URL.Query()
+	part := vals.Get("part")
+	run := vals.Get("run")
+
+	ctx := context.Background()
+
+	err := db.PingContext(ctx)
+	if err != nil {
+		fmt.Println("Could not establish a connection: ", err.Error())
+	}
+
+
+	query := fmt.Sprintf(`
+		SELECT 
+				RUNREF,
+				RUNRTNUM, 
+				RUNNO,
+				SOPO, 
+				ITSO,
+				RASOITEM,
+				ITCUSTREQ
+				FROM RunsTable
+				INNER JOIN RnopTable ON OPREF=RUNREF AND OPRUN= RUNNO AND RUNOPCUR=OPNO
+				INNER JOIN PartTable ON PARTREF=RUNREF 
+				INNER JOIN RnalTable ON RUNREF=RAREF AND RUNNO=RARUN
+				INNER JOIN SohdTable ON SONUMBER=RASO
+				INNER JOIN WcntTable ON OPCENTER = WCNREF
+				INNER JOIN SoitTable ON ITPART = RUNREF AND ITNUMBER=RASOITEM AND ITSO=RASO
+
+				WHERE RUNREF LIKE '%s' AND RUNNO LIKE '%s'
+				AND RUNCOMPLETE IS NULL
+				ORDER BY RUNNO, SOPO, RASOITEM`, part, run)
+
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		fmt.Println("Error executing query: ", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(
+			&temp.PartRef,
+			&temp.PartNum,
+			&temp.Run,
+			&temp.PO,
+			&temp.SO,
+			&temp.Item,
+			&temp.CustDate,
+		)
+		if err != nil {
+			fmt.Println("Error getting data: ", err.Error())
+		}
+		tempList = append(tempList, temp)
+	}
+	json.NewEncoder(w).Encode(tempList)
 }

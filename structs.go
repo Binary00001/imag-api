@@ -44,3 +44,26 @@ type DeptStats struct {
 	JobCount  int `json:"Job_Count"`
 	PartCount int `json:"Part_Count"`
 }
+
+type Part struct {
+	PartRef   string  `json:"Part_Ref"`
+	PartNum   string  `json:"Part_Num"`
+	Run       string  `json:"Run"`
+	Quantity  float32 `json:"Qty"`
+	Customer  *string `json:"Customer"`
+	Comments  string  `json:"Comments"`
+	Priority  int     `json:"Priority"`
+	SchedDate string  `json:"Cust_Date"`
+	QueueDiff int     `json:"Queue_Diff"`
+	WCName    string  `json:"WC_Name"`
+}
+
+type Allocations struct {
+	PartRef  string `json:"Part_Ref"`
+	PartNum  string `json:"Part_Num"`
+	Run      string `json:"Run"`
+	PO       string `json:"PO"`
+	SO       string `json:"SO"`
+	Item     string `json:"Item"`
+	CustDate string `json:"Cust_Date"`
+}
