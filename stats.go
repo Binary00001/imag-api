@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 )
 
 func dailyGoal(dept string) int {
@@ -119,5 +122,45 @@ func completedParts(dept string) int {
 		}
 	}
 	return temp.PartCount
+}
+
+//
+//PARTS PER EMPLOYEE/DAY
+//
+func getEmployeeStats(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var temp Employee
+	var tempList []Employee
+
+	ctx := context.Background()
+
+	err := db.PingContext(ctx)
+	if err != nil {
+		log.Fatal("Could not establish a connection: ", err.Error())
+	}
+
+	tsql := fmt.Sprintf("SELECT COUNT(OPREF) AS JOBS_COMPLETED, OPINSP AS EMPLOYEE FROM RnopTable INNER JOIN RunsTable ON RUNREF = OPREF AND RunsTable.RUNNO = OPRUN WHERE RUNPKPURGED = 0 AND OPCOMPDATE >= CAST(GETDATE() AS DATE) GROUP BY OPINSP")
+
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		log.Fatal("Uh oh: ", err.Error())
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(
+			&temp.JobCount,
+			&temp.Employee,
+		)
+
+		if err != nil {
+			log.Fatal("Error getting info: ", err.Error())
+		}
+
+		tempList = append(tempList, temp)
+	}
+	json.NewEncoder(w).Encode(tempList)
+
 }
 

@@ -97,6 +97,7 @@ func getAllocations(w http.ResponseWriter, r *http.Request) {
 				SOPO, 
 				ITSO,
 				RASOITEM,
+				SOCUST,
 				ITCUSTREQ
 				FROM RunsTable
 				INNER JOIN RnopTable ON OPREF=RUNREF AND OPRUN= RUNNO AND RUNOPCUR=OPNO

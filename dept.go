@@ -151,3 +151,74 @@ func getQueueList(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(tempList)
 }
+
+//DAILY DEPT STATISTICS (JOBS COMPLETED, PARTS COMPLETED, DAILY GOAL)
+func getDeptStats(w http.ResponseWriter, r *http.Request) {
+
+	dept := mux.Vars(r)["dept"]
+	w.Header().Set("Content-Type", "application/json")
+
+	var temp DeptStats
+
+
+	temp.JobCount = completedJobs(dept)
+
+	temp.PartCount = completedParts(dept)
+
+	temp.Goal = dailyGoal(dept)
+
+	
+	json.NewEncoder(w).Encode(temp)
+	}
+//
+
+
+//DAILY JOB COUNT FROM THE PAST WEEK
+func getChartData(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	dept := mux.Vars(r)["dept"]
+
+	var temp ChartData 
+	var tempList []ChartData
+
+
+	ctx := context.Background()
+	err := db.PingContext(ctx)
+	if err != nil {
+		fmt.Println("Could not establish a connection: ", err.Error())
+	}
+
+	query := fmt.Sprintf(`
+		SELECT COUNT(OPREF) AS JOB_COUNT, 
+    CAST(OPCOMPDATE AS DATE) AS DATE 
+		FROM RnopTable
+    INNER JOIN RunsTable ON RUNREF = OPREF
+    AND RUNNO = OPRUN
+    WHERE RUNPKPURGED = 0
+    AND OPCOMPDATE >= CAST(GETDATE() AS DATETIME) - 8
+    AND OPCENTER LIKE '%s'
+    GROUP BY CAST(OPCOMPDATE AS DATE)
+    ORDER BY DATE;
+	`, dept)
+
+	rows, err := db.QueryContext(ctx, query)
+	if err != nil {
+		fmt.Println("Error executing query: ", err.Error())
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(
+			&temp.JobCount,
+			&temp.Date, 
+		)
+
+		if err != nil {
+			fmt.Println("Error getting data: ", err.Error())
+		}
+		tempList = append(tempList, temp)
+	}
+	json.NewEncoder(w).Encode(tempList)
+}
+//

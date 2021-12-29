@@ -65,5 +65,16 @@ type Allocations struct {
 	PO       string `json:"PO"`
 	SO       string `json:"SO"`
 	Item     string `json:"Item"`
+	Customer string `json:"Customer"`
 	CustDate string `json:"Cust_Date"`
+}
+
+type ChartData struct {
+	JobCount int    `json:"Job_Count"`
+	Date     string `json:"Date"`
+}
+
+type Employee struct {
+	JobCount int    `json:"Job_Count"`
+	Employee string `json:"Employee"`
 }

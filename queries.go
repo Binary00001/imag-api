@@ -2,11 +2,7 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-
-	"github.com/gorilla/mux"
 )
 
 func getJobs(tsql string) []Job {
@@ -53,22 +49,5 @@ func getJobs(tsql string) []Job {
 }
 
 
-func getDeptStats(w http.ResponseWriter, r *http.Request) {
-
-	dept := mux.Vars(r)["dept"]
-	w.Header().Set("Content-Type", "application/json")
-
-	var temp DeptStats
-
-
-	temp.JobCount = completedJobs(dept)
-
-	temp.PartCount = completedParts(dept)
-
-	temp.Goal = dailyGoal(dept)
-
-	
-	json.NewEncoder(w).Encode(temp)
-	}
 
 
