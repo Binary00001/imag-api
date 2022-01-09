@@ -71,7 +71,7 @@ func getParts(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(parts)
 }
 
-func getAllocations(w http.ResponseWriter, r *http.Request) {
+func getRunAllocations(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var temp Allocations 
@@ -90,26 +90,9 @@ func getAllocations(w http.ResponseWriter, r *http.Request) {
 
 
 	query := fmt.Sprintf(`
-		SELECT 
-				RUNREF,
-				RUNRTNUM, 
-				RUNNO,
-				SOPO, 
-				ITSO,
-				RASOITEM,
-				SOCUST,
-				ITCUSTREQ
-				FROM RunsTable
-				INNER JOIN RnopTable ON OPREF=RUNREF AND OPRUN= RUNNO AND RUNOPCUR=OPNO
-				INNER JOIN PartTable ON PARTREF=RUNREF 
-				INNER JOIN RnalTable ON RUNREF=RAREF AND RUNNO=RARUN
-				INNER JOIN SohdTable ON SONUMBER=RASO
-				INNER JOIN WcntTable ON OPCENTER = WCNREF
-				INNER JOIN SoitTable ON ITPART = RUNREF AND ITNUMBER=RASOITEM AND ITSO=RASO
-
-				WHERE RUNREF LIKE '%s' AND RUNNO LIKE '%s'
-				AND RUNCOMPLETE IS NULL
-				ORDER BY RUNNO, SOPO, RASOITEM`, part, run)
+		SELECT RAREF, RARUN, RASO, SOPO, RASOITEM, RASOREV, RAQTY, SOTYPE, SOCUST, ITCUSTREQ
+FROM  RnalTable, SohdTable, CustTable , SoitTable
+WHERE (RASO = SONUMBER AND SOCUST=CUREF) AND (RAREF LIKE '%s' AND RARUN = '%s') AND (ITSO=RASO AND ITNUMBER=RASOITEM)`, part, run)
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
@@ -120,11 +103,14 @@ func getAllocations(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		err := rows.Scan(
 			&temp.PartRef,
-			&temp.PartNum,
 			&temp.Run,
-			&temp.PO,
 			&temp.SO,
+			&temp.PO,
 			&temp.Item,
+			&temp.Rev,
+			&temp.Quantity,
+			&temp.Type,
+			&temp.Customer,
 			&temp.CustDate,
 		)
 		if err != nil {

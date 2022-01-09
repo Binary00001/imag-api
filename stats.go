@@ -164,3 +164,70 @@ func getEmployeeStats(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func getCurrentLogins(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	dept := r.URL.Query().Get("dept")
+	
+	var temp CurrentLogin
+	var tempList []CurrentLogin
+
+	ctx := context.Background()
+
+	err := db.PingContext(ctx)
+	if err != nil {
+		log.Fatal("Could not establish a connection: ", err.Error())
+	}
+
+	tsql := fmt.Sprintf(`
+		SELECT 
+			ISEMPLOYEE, 
+			PREMLSTNAME, 
+			PREMFSTNAME, 
+			ISMO, 
+			ISRUN, 
+			ISOP, 
+			ISWCNT, 
+			PARTNUM, 
+			PADESC, 
+			WCNDESC,
+			DATEDIFF(MINUTE, ISMOSTART, GETDATE()) TIME
+		FROM IstcTable
+			LEFT OUTER JOIN PartTable ON PARTREF=ISMO
+			LEFT JOIN WcntTable ON ISWCNT=WCNREF
+			LEFT JOIN EmplTable ON ISEMPLOYEE = PREMNUMBER
+		WHERE ISINDIRECT = 0 AND ISWCNT LIKE '%s'
+	`, dept)
+
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		log.Fatal("Uh oh: ", err.Error())
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(
+			&temp.EmployeeRef,
+			&temp.FirstName,
+			&temp.LastName,
+			&temp.PartRef,
+			&temp.Run,
+			&temp.OP,
+			&temp.WCNum,
+			&temp.PartNum,
+			&temp.Description,
+			&temp.WCName,
+			&temp.TimeOn,
+		)
+
+		if err != nil {
+			log.Fatal("Error getting info: ", err.Error())
+		}
+
+		tempList = append(tempList, temp)
+	}
+	json.NewEncoder(w).Encode(tempList)
+
+}
+

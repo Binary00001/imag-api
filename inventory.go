@@ -23,23 +23,7 @@ type lot struct {
 
 type locationList []lot
 
-type Inventory struct {
-	Sched_Date				string	`json:"Sched_Date"`
-	Req_Date					string	`json:"Req_Date"`
-	Cust 							string	`json:"Cust"`
-	SO 								string	`json:"SO"`
-	Item							string	`json:"Item"`
-	LTR								*string	`json:"LTR"`
-	Part_Number				string	`json:"Part_Number"`
-	Qty 							float32			`json:"Int"`
-	Up 								string	`json:"Up"`
-	On_Hand						float32			`json:"On_Hand"`
-	Lot 							string	`json:"Lot"`
-	Loc 							string	`json:"Loc"`
-	PO 								string	`json:"PO"`
-}
 
-type InventoryList []Inventory
 
 func lotsByPartNumber(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -93,7 +77,30 @@ func availableShip(w http.ResponseWriter, r *http.Request) {
 		 log.Fatal("Could not establish a connection: ", err.Error())
 	 }
 
-	tsql := fmt.Sprintf("SELECT TOP (100) PERCENT SoitTable.ITSCHED AS SCHED, SoitTable.ITCUSTREQ AS REQD, SohdTable.SOCUST AS CUST, CONCAT(RTRIM(SOTYPE), SohdTable.SONUMBER) AS SO, SoitTable.ITNUMBER AS ITEM, SoitTable.ITREV AS LTR, RTRIM(PartTable.PARTNUM) AS PART, SoitTable.ITQTY AS QTY, SoitTable.ITDOLLARS AS UP, LohdTable.LOTREMAININGQTY AS QOH, LohdTable.LOTUSERLOTID AS LOT, LohdTable.LOTLOCATION AS LOC, SohdTable.SOPO FROM LohdTable INNER JOIN SoitTable INNER JOIN SohdTable ON SoitTable.ITSO = SohdTable.SONUMBER ON LohdTable.LOTPARTREF = SoitTable.ITPART INNER JOIN PartTable on SoitTable.ITPART = PartTable.PARTREF WHERE (LohdTable.LOTREMAININGQTY > 0) AND (SoitTable.ITACTUAL IS NULL) AND (SoitTable.ITCANCELDATE IS NULL) AND (SoitTable.ITPSITEM = 0) ORDER BY REQD, CUST")
+	tsql := fmt.Sprintf(`
+	SELECT TOP (100) PERCENT 
+	SoitTable.ITSCHED AS SCHED, 
+	SoitTable.ITCUSTREQ AS REQD, 
+	SohdTable.SOCUST AS CUST, 
+	CONCAT(RTRIM(SOTYPE), SohdTable.SONUMBER) AS SO, 
+	SoitTable.ITNUMBER AS ITEM, 
+	SoitTable.ITREV AS LTR, 
+	RTRIM(PartTable.PARTNUM) AS PART, 
+	SoitTable.ITQTY AS QTY, 
+	SoitTable.ITDOLLARS AS UP, 
+	LohdTable.LOTREMAININGQTY AS QOH, 
+	LohdTable.LOTUSERLOTID AS LOT, 
+	LohdTable.LOTLOCATION AS LOC, 
+	SohdTable.SOPO 
+	FROM LohdTable 
+	INNER JOIN SoitTable 
+	INNER JOIN SohdTable ON SoitTable.ITSO = SohdTable.SONUMBER ON LohdTable.LOTPARTREF = SoitTable.ITPART 
+	INNER JOIN PartTable on SoitTable.ITPART = PartTable.PARTREF 
+	WHERE (LohdTable.LOTREMAININGQTY > 0) AND (SoitTable.ITACTUAL IS NULL) 
+	AND (SoitTable.ITCANCELDATE IS NULL) AND (SoitTable.ITPSITEM = 0) 
+	AND LohdTable.LOTLOCATION NOT LIKE 'MRB'
+	AND PARTNUM NOT LIKE 'NRC'
+	ORDER BY REQD, CUST`)
 
 	rows, err := db.QueryContext(ctx, tsql)
 	if err != nil {
@@ -126,3 +133,4 @@ func availableShip(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(tempList)
 }
+

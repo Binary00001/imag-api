@@ -65,8 +65,9 @@ func main() {
 	r.HandleFunc("/api/testing/part", getParts)
 	r.HandleFunc("/api/testing/dept/{dept}", getQueueList)
 	r.HandleFunc("/api/testing/dept/stats/{dept}", getDeptStats)
-	r.HandleFunc("/api/testing/allocations", getAllocations)
+	r.HandleFunc("/api/testing/allocations", getRunAllocations)
 	r.HandleFunc("/api/testing/stats/dept/weekly/{dept}",getChartData )
+	r.HandleFunc("/api/testing/current", getCurrentLogins)
 	// SETUP DATABASE
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s",
 		server, user, password, port, database)
