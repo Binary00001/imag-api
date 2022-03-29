@@ -53,14 +53,14 @@ func getParts(w http.ResponseWriter, r *http.Request) {
 		LEFT OUTER JOIN AgcmTable ON AGPART = RUNRTNUM AND AGRUN = RUNNO
 			AND AGPO = SOPO AND AGITEM = ITNUMBER	
 
-		WHERE SOPO = '%s' AND LTRIM(ITNUMBER) = '%s' AND RUNNO = '%s' AND RUNRTNUM = '%s'
+		WHERE SOPO = '%s' AND LTRIM(ITNUMBER) = '%s' AND RUNNO = '%s' AND RUNRTNUM LIKE '%s'
 		AND ITCANCELED = 0 
 		AND ITINVOICE = 0 
 		AND ITPSSHIPPED = 0 
 		AND ((RUNSTATUS <> 'CO' AND RUNSTATUS <> 'CA' AND RUNSTATUS <> 'CL') OR RUNSTATUS IS NULL)
 		AND OPCOMPLETE = 0 
 		AND RUNOPCUR = OPNO
-		ORDER BY RUNPRIORITY, CUSTDATE ASC`, po, line, run, part)
+		ORDER BY RUNPRIORITY, CUSTDATE ASC`, po, line, run, part + "%")
 
 	parts = getJobs(tsql)
 	// 	if err != nil {

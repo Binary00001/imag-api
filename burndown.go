@@ -142,3 +142,73 @@ func getDeptBurndown(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(tempList)
 }
+
+
+//
+//BURNDOWN ALL
+//
+func getEtrac(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+
+	var temp Burndown
+	var tempList []Burndown
+
+	bd := "%etrac%"
+
+	ctx := context.Background()
+	err := db.PingContext(ctx)
+	if err != nil {
+		fmt.Println("Could not establish connection: ", err.Error())
+	}
+
+	tsql := fmt.Sprintf(`
+		SELECT 
+				AGPART Part_Num, 
+				AGRUN Run, 
+				AGPMCOMMENTS Comments, 
+				OPCENTER, 
+				WCNDESC WC_Name, 
+				RUNQTY Qty, 
+				WCNNUM,
+				ISNULL((SELECT DATEDIFF(MINUTE,(Select TOP 1 OPCOMPDATE From RnopTable WHERE OPREF = RUNREF AND OPRUN = RUNNO AND OPCOMPLETE IS NOT NULL ORDER BY OPCOMPDATE DESC),GETDATE())), '') Queue_Diff
+
+			FROM AgcmTable
+				INNER JOIN RunsTable ON RUNRTNUM = AGPART and runno = AGRUN
+				INNER JOIN RnopTable ON RUNREF = OPREF and RUNNO = oprun and RUNOPCUR = OPNO
+				INNER JOIN RnalTable ON RUNREF = RAREF AND RARUN=RUNNO
+				INNER JOIN SohdTable ON SONUMBER=RASO 
+				INNER JOIN WcntTable ON OPCENTER = WCNREF
+				WHERE AGPMCOMMENTS LIKE '%s' AND 
+				AGPO = SOPO AND AGITEM = RASOITEM AND
+				((RUNSTATUS <> 'CO' AND RUNSTATUS <> 'CL' AND runstatus <> 'CA') and runstatus is not null)
+			ORDER BY OPCENTER ASC	`, bd)
+
+	rows, err := db.QueryContext(ctx, tsql)
+	if err != nil {
+		fmt.Println("Error executing query: ", err.Error())
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(
+			&temp.PartNum,
+			&temp.Run,
+			&temp.Comments,
+			&temp.WCNum,
+			&temp.WCName,
+			&temp.Quantity,
+			&temp.WCNNUM,
+			&temp.QueueDiff,
+		)
+
+		if err != nil {
+			fmt.Println("Error: ", err.Error())
+		}
+
+
+		tempList = append(tempList, temp)
+	}
+	json.NewEncoder(w).Encode(tempList)
+}

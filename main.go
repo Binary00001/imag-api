@@ -47,7 +47,8 @@ func main() {
 	r.HandleFunc("/api/employee/stats", getEmployeeStats)
 	r.HandleFunc("/api/dept/num/{dept}", getQueue)
 	r.HandleFunc("/api/dept/burndown/{dept}", getDeptBurndown)
-	r.HandleFunc("/api/burndown", getBurndown)
+	r.HandleFunc("/api/burndown", getEtrac)
+	r.HandleFunc("/api/burndown/all", getBurndown)
 	// r.HandleFunc("/api/testing/dept/num/{dept}", getQueue)
 
 	//DEPT ROUTES
@@ -68,6 +69,7 @@ func main() {
 	r.HandleFunc("/api/testing/allocations", getRunAllocations)
 	r.HandleFunc("/api/testing/stats/dept/weekly/{dept}",getChartData )
 	r.HandleFunc("/api/testing/current", getCurrentLogins)
+	r.HandleFunc("/api/testing/f/{dept}", getThirdParty)
 	// SETUP DATABASE
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s",
 		server, user, password, port, database)

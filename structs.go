@@ -34,7 +34,7 @@ type Job struct {
 	QueueDiff int     `json:"Queue_Diff"`
 	Quantity  string  `json:"Qty"`
 	Customer  *string `json:"Customer"`
-	CustDate  string  `json:"Cust_Date"`
+	CustDate  *string `json:"Cust_Date"`
 	Priority  int     `json:"Priority"`
 	WCName    string  `json:"WC_Name"`
 	Comments  *string `json:"Comments"`
@@ -80,7 +80,7 @@ type Part struct {
 	Customer  *string `json:"Customer"`
 	Comments  string  `json:"Comments"`
 	Priority  int     `json:"Priority"`
-	SchedDate string  `json:"Cust_Date"`
+	SchedDate *string `json:"Cust_Date"`
 	QueueDiff int     `json:"Queue_Diff"`
 	WCName    string  `json:"WC_Name"`
 }

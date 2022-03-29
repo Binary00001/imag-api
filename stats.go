@@ -66,7 +66,8 @@ func completedJobs(dept string) int {
             OPCENTER, 
 		        ROW_NUMBER() OVER (PARTITION BY OPCENTER ORDER BY OPCENTER) OPTOTAL 
           FROM RnopTable 
-          WHERE OPCOMPDATE >= CAST(GETDATE() AS DATE) AND OPCENTER = '%s'
+					JOIN RunsTable ON OPREF=RUNREF AND OPRUN=RUNNO
+          WHERE OPCOMPDATE >= CAST(GETDATE() AS DATE) AND OPCENTER = '%s' AND RUNSTATUS <> 'CA'
 	      )a 
       GROUP BY OPCENTER), 0) completed_jobs`, dept)
 
