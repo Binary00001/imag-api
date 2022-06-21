@@ -16,13 +16,6 @@ import (
 
 var db *sql.DB
 
-
-// THIS IS JUST FOR TESTING CONNECTION
-func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hello")
-
-}
-
 func main() {
 	err := godotenv.Load(".env")
 	if err != nil {
@@ -30,7 +23,7 @@ func main() {
 	}
 
 	var server = os.Getenv("HOST")
-	var port = 1433
+	var port = 1433 //getenv pulls as string, convert to int
 	var user = os.Getenv("USER")
 	var password = os.Getenv("PASSWORD")
 	var database = os.Getenv("DATABASE")
@@ -38,12 +31,11 @@ func main() {
 	r := mux.NewRouter().StrictSlash(true)
 	handler := cors.AllowAll().Handler(r)
 	srv := &http.Server{
-		Addr:    os.Getenv("ADDRESS"),
+		// Addr:    os.Getenv("ADDRESS"),
 		Handler: handler,
 	}
 
 	// ROUTES
-	r.HandleFunc("/", home)
 	r.HandleFunc("/api/employee/stats", getEmployeeStats)
 	r.HandleFunc("/api/dept/num/{dept}", getQueue)
 	r.HandleFunc("/api/dept/burndown/{dept}", getDeptBurndown)
@@ -58,7 +50,7 @@ func main() {
 	r.HandleFunc("/api/pcm", getPCMList)
 	r.HandleFunc("/api/pcm/loc/{pcmLoc}", getPcmByLoc)
 
-	//INVETORY 
+	//INVETORY
 	r.HandleFunc("/api/inv/part/{partNum}", lotsByPartNumber)
 	r.HandleFunc("/api/inv/available", availableShip)
 
@@ -67,7 +59,7 @@ func main() {
 	r.HandleFunc("/api/testing/dept/{dept}", getQueueList)
 	r.HandleFunc("/api/testing/dept/stats/{dept}", getDeptStats)
 	r.HandleFunc("/api/testing/allocations", getRunAllocations)
-	r.HandleFunc("/api/testing/stats/dept/weekly/{dept}",getChartData )
+	r.HandleFunc("/api/testing/stats/dept/weekly/{dept}", getChartData)
 	r.HandleFunc("/api/testing/current", getCurrentLogins)
 	r.HandleFunc("/api/testing/f/{dept}", getThirdParty)
 	// SETUP DATABASE

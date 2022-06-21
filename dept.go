@@ -9,9 +9,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-
 func getQueue(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	dept := mux.Vars(r)["dept"]
 
 	var temp Part
@@ -153,18 +152,16 @@ func getDeptStats(w http.ResponseWriter, r *http.Request) {
 
 	var temp DeptStats
 
-
 	temp.JobCount = completedJobs(dept)
 
 	temp.PartCount = completedParts(dept)
 
 	temp.Goal = dailyGoal(dept)
 
-	
 	json.NewEncoder(w).Encode(temp)
-	}
-//
+}
 
+//
 
 //DAILY JOB COUNT FROM THE PAST WEEK
 func getChartData(w http.ResponseWriter, r *http.Request) {
@@ -172,9 +169,8 @@ func getChartData(w http.ResponseWriter, r *http.Request) {
 
 	dept := mux.Vars(r)["dept"]
 
-	var temp ChartData 
+	var temp ChartData
 	var tempList []ChartData
-
 
 	ctx := context.Background()
 	err := db.PingContext(ctx)
@@ -204,7 +200,7 @@ func getChartData(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		err := rows.Scan(
 			&temp.JobCount,
-			&temp.Date, 
+			&temp.Date,
 		)
 
 		if err != nil {
@@ -214,11 +210,12 @@ func getChartData(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(tempList)
 }
+
 //
 //third party
 //
 func getThirdParty(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	dept := mux.Vars(r)["dept"]
 
 	var temp Part
